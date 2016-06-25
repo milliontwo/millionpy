@@ -1,3 +1,4 @@
 .idea
 __pycache__/
 msq/__pycache__/
+test.py

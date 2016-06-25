@@ -11,30 +11,36 @@ class MSQParseError(Exception):
 class MsqReader:
     """A reader class that provides functionality to read the MSQ file format"""
 
-    def __init__(self, file: io.FileIO):
-        self._file = file
+    def __init__(self, file):
+        self._file = open(file, 'rb')
 
         # check marker
-        marker = file.read(7)
+        marker = self._file.read(7)
         if marker != b"MILLION":
             raise MSQParseError("Not correct type of file")
 
         # get version
-        self._version = int.from_bytes(file.read(1),  byteorder='big')
+        self._version = int.from_bytes(self._file.read(1),  byteorder='big')
         if self._version != 1:
             raise MSQParseError("MSQ Version not supported")
 
         # get dimensions
-        self._dimensions = (int.from_bytes(file.read(1), byteorder='big'),
-                            int.from_bytes(file.read(1), byteorder='big'))
+        self._dimensions = (int.from_bytes(self._file.read(1), byteorder='big'),
+                            int.from_bytes(self._file.read(1), byteorder='big'))
 
         # get frame rate
-        self._frame_rate = int.from_bytes(file.read(1), byteorder='big')
+        self._frame_rate = int.from_bytes(self._file.read(1), byteorder='big')
 
         # check end of header
-        a = file.read(1)
+        a = self._file.read(1)
         if a != b'\xFF':
             raise MSQParseError("Header not terminated by 0xFF")
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self._file.close()
 
     def _byte_array_to_int_array(self, byte_array):
         int_array = array.array("B", itertools.repeat(0, len(byte_array)))

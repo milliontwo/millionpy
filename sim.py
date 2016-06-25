@@ -25,7 +25,7 @@ class Simulator(tk.Frame):
                 self._clocks[i][j].grid(row=j, column=i)
 
     def _simulation_step(self, msq_reader: msq.MsqReader):
-        """Starts the simulation and starts itself"""
+        """A step in the simulation. Calls itself until simulation ends"""
         # read next frame from file
         frame = msq_reader.next_frame()
 
@@ -36,23 +36,25 @@ class Simulator(tk.Frame):
         if frame is not None:
             for x in range(DIMENSIONS[0]):
                 for y in range(DIMENSIONS[1]):
-                    self._clocks[x][y].set_hand_a(frame.get_at_position(x, y, 1)/200.0)
-                    self._clocks[x][y].set_hand_b(frame.get_at_position(x, y, 2)/200.0)
-            self.after(delta_t, self._simulation_step(msq_reader))
+                    self._clocks[x][y].set_hand_a(frame.get_at_index(x, y, 1)/200.0)
+                    self._clocks[x][y].set_hand_b(frame.get_at_index(x, y, 2)/200.0)
+            self.after(int(round(delta_t)), self._simulation_step(msq_reader))
 
         else:
             msq_reader.close()
             self._simulation_running = False
 
     def set_file_name(self, file):
+        """Sets the filename to use"""
         self._file_name = file
 
     def start_simulation(self):
+        """Starts the simulation"""
         if self._file_name is None or self._simulation_running:
             return
 
         self._simulation_running = True
-        self._simulation_step(msq.MsqReader(open(self._file_name, 'rb')))
+        self._simulation_step(msq.MsqReader(self._file_name))
 
 
 def main():

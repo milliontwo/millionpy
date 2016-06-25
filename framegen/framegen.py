@@ -1,0 +1,2 @@
+class FrameGenerator:
+    pass
