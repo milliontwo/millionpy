@@ -38,7 +38,7 @@ class Simulator(tk.Frame):
                 for y in range(DIMENSIONS[1]):
                     self._clocks[x][y].set_hand_a(frame.get_at_index(x, y, 1)/200.0)
                     self._clocks[x][y].set_hand_b(frame.get_at_index(x, y, 2)/200.0)
-            self.after(int(round(delta_t)), self._simulation_step(msq_reader))
+            self.after(int(round(delta_t)), lambda: self._simulation_step(msq_reader))
 
         else:
             msq_reader.close()
